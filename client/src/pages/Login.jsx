@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -14,7 +16,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const res = await fetch("http://localhost:5000/api/auth/login", {
+            const res = await fetch(`${apiUrl}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),

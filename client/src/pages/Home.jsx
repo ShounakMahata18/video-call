@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function Home() {
   const [roomId, setRoomId] = useState("");
   const navigate = useNavigate();
 
   const createRoom = async () => {
     try {
-      const res = await fetch("http://192.168.0.107:5000/api/call/create-room", {
+      const res = await fetch(`${apiUrl}/api/call/create-room`, {
         method: "POST",
       });
       const data = await res.json();

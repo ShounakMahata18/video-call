@@ -6,7 +6,7 @@ import VideoPlayer from "../components/VideoPlayer";
 import CopyUrlButton from "../components/CopyUrlButton";
 import peer from "../services/peer";
 
-const SOCKET_URL = "http://192.168.0.107:5000";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function Room() {
     const { roomId } = useParams();
@@ -40,7 +40,7 @@ export default function Room() {
     useEffect(() => {
         if (!localStream) return;
 
-        socketRef.current = io(SOCKET_URL, { transports: ["websocket"] });
+        socketRef.current = io(apiUrl, { transports: ["websocket"] });
 
         peer.createNewPeerConnection();
         peer.setLocalStream(localStream);
