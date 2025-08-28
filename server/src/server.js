@@ -10,10 +10,9 @@ import { initSocket } from "./socket.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const HOST = "0.0.0.0";
 
 // middlewares
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 
 // all rooms
@@ -30,7 +29,7 @@ const httpServer = createServer(app);
 initSocket(httpServer);
 
 // create the server with the given port
-httpServer.listen(PORT, HOST, () => {
+httpServer.listen(PORT, () => {
     console.log(`server started at PORT:${PORT}`);
     connectDB();
 });
