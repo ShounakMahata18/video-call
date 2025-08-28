@@ -21,9 +21,14 @@ export default function Home() {
   };
 
   const joinRoom = () => {
-    if (roomId.trim()) {
-      navigate(`/room/${roomId}`);
+    let updatedRoomId = roomId;
+    
+    if (roomId.includes("/")) {
+      updatedRoomId = roomId.split("/").pop();
     }
+
+    setRoomId(updatedRoomId);
+    navigate(`/room/${updatedRoomId}`);
   };
 
   return (

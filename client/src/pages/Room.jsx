@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import VideoPlayer from "../components/VideoPlayer";
-import CopyUrlButton from "../components/CopyUrlButton";
+import ShareButton from "../components/ShareButton";
 import peer from "../services/peer";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -21,11 +21,18 @@ export default function Room() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        width: { min: 320, ideal: 640, max: 1280 },
-                        height: { min: 240, ideal: 360, max: 720 },
-                        frameRate: { ideal: 24, max: 30 },
+                        width: { ideal: 640, max: 640 }, // fix at 640 for stability
+                        height: { ideal: 360, max: 360 }, // 360p is smooth + lightweight
+                        frameRate: { ideal: 20, max: 24 }, // lower fps → smoother transmission
                     },
-                    audio: true,
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        channelCount: 1,
+                        sampleRate: 48000, // reduces bandwidth but keeps speech clear
+                        sampleSize: 24,  
+                    },
                 });
                 setLocalStream(stream);
                 peer.setLocalStream(stream);
@@ -133,9 +140,7 @@ export default function Room() {
 
                 {/* Buttons Container */}
                 <div className="flex gap-2">
-                    <CopyUrlButton
-                        url={`http://localhost:5173/room/${roomId}`}
-                    />
+                    <ShareButton roomId={`${roomId}`} />
                     <button
                         onClick={leaveRoom}
                         className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition"
@@ -147,21 +152,16 @@ export default function Room() {
 
             {/* Video Container */}
             <div
-                className={`flex flex-1 w-full max-h-[calc(100vh-64px)] p-4 gap-4 justify-center items-center ${
-                    remoteStream
-                        ? "flex-col md:flex-row"
-                        : "justify-center items-center"
-                }`}
+                className={`flex flex-1 w-full h-[calc(100dvh-64px)] p-2 md:p-4 gap-2 md:gap-4 
+              ${remoteStream ? "flex-col md:flex-row" : "flex-col"} 
+              justify-center items-center overflow-hidden`}
             >
                 {localStream && (
                     <VideoPlayer
                         stream={localStream}
                         muted
-                        className={`bg-black rounded-xl shadow-lg ${
-                            remoteStream
-                                ? "w-[90%] md:w-1/2 h-auto"
-                                : "w-full h-full object-contain"
-                        }`}
+                        className={`bg-black rounded-xl shadow-lg object-contain
+        ${remoteStream ? "w-full md:w-1/2 aspect-video" : "w-full h-full"}`}
                     />
                 )}
 
@@ -169,7 +169,7 @@ export default function Room() {
                     <VideoPlayer
                         stream={remoteStream}
                         muted={false}
-                        className="bg-black w-[90%] md:w-1/2 h-auto rounded-xl shadow-lg"
+                        className="bg-black rounded-xl shadow-lg object-contain w-full md:w-1/2 aspect-video"
                     />
                 )}
             </div>
