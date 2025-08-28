@@ -12,10 +12,8 @@ export const initSocket = (httpServer) => {
     });
 
     io.on("connection", (socket) => {
-        console.log("Socket connected:", socket.id);
         registerSignalingHandlers(io, socket);
     });
-
     console.log("Socket initialized");
     return io;
 };
