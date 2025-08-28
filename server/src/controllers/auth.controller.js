@@ -4,10 +4,10 @@ import User from "../models/User.js";
 
 export const signup = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { fullname, email, password } = req.body;
     
         // Check all the filed are properly filled
-        if(!name || !email || !password){
+        if(!fullname || !email || !password){
             return res.status(400).json({ message: "All field needed" });
         }
 
@@ -44,7 +44,7 @@ export const signup = async (req, res) => {
         const randomAvater = `https://avater.iran.liara.run/public/${idx}.png`;
 
         const newUser = await User.create({
-            name,
+            fullname,
             email,
             password: hashedPassword,
             avatar: randomAvater
@@ -70,7 +70,7 @@ export const signup = async (req, res) => {
         // return the res
         res.status(201).json({ success: true, user: {
             _id: newUser._id,
-            name: newUser.name,
+            fullname: newUser.fullname,
             email: newUser.email,
             avatar: newUser.avatar,
             provider: newUser.provider
