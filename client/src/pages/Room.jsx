@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import VideoPlayer from "../components/VideoPlayer";
+import CopyUrlButton from "../components/CopyUrlButton";
 import peer from "../services/peer";
 
 const SOCKET_URL = "http://192.168.0.107:5000";
@@ -41,9 +42,16 @@ export default function Room() {
 
         socketRef.current = io(SOCKET_URL, { transports: ["websocket"] });
 
+        peer.createNewPeerConnection();
+        peer.setLocalStream(localStream);
+
         socketRef.current.on("connect", () => {
-            console.log("Connected:", socketRef.current.id);
             socketRef.current.emit("join-room", { roomId });
+        });
+
+        socketRef.current.on("room-error", ({ message }) => {
+            alert(message);
+            navigate("/");
         });
 
         socketRef.current.on("user-joined", async ({ id }) => {
@@ -81,10 +89,8 @@ export default function Room() {
 
         socketRef.current.on("user-left", ({ id }) => {
             if (otherUserRef.current === id) {
-                // Stop remote tracks
-                if (remoteStream) {
-                    remoteStream.getTracks().forEach((track) => track.stop());
-                }
+                if (remoteStream)
+                    remoteStream.getTracks().forEach((t) => t.stop());
                 setRemoteStream(null);
                 otherUserRef.current = null;
             }
@@ -106,7 +112,9 @@ export default function Room() {
 
         if (peer && peer.peer) {
             peer.peer.close();
+            peer.peer = null;
         }
+        otherUserRef.current = null;
 
         if (socketRef.current) {
             socketRef.current.disconnect();
@@ -122,12 +130,19 @@ export default function Room() {
                 <h1 className="text-2xl font-bold text-white">
                     Room: {roomId}
                 </h1>
-                <button
-                    onClick={leaveRoom}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition"
-                >
-                    Leave Room
-                </button>
+
+                {/* Buttons Container */}
+                <div className="flex gap-2">
+                    <CopyUrlButton
+                        url={`http://localhost:5173/room/${roomId}`}
+                    />
+                    <button
+                        onClick={leaveRoom}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition"
+                    >
+                        Leave Room
+                    </button>
+                </div>
             </div>
 
             {/* Video Container */}

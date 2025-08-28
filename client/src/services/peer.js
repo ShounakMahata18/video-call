@@ -1,20 +1,19 @@
 class PeerService {
     constructor() {
+        this.peer = null;
+        this.onIceCandidate = null;
+        this.onTrack = null;
+    }
+
+    createNewPeerConnection() {
+        if (this.peer) this.peer.close();
         this.peer = new RTCPeerConnection({
-            iceServers: [
-                {
-                    urls: [
-                        "stun:stun.l.google.com:19302",
-                        "stun:global.stun.twilio.com:3478",
-                    ],
-                },
-            ],
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
         });
 
         this.peer.onicecandidate = (event) => {
-            if (event.candidate && this.onIceCandidate) {
+            if (event.candidate && this.onIceCandidate)
                 this.onIceCandidate(event.candidate);
-            }
         };
 
         this.peer.ontrack = (event) => {

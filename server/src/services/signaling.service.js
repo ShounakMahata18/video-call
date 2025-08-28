@@ -2,13 +2,19 @@ import { activeRooms } from "../server.js";
 
 export const registerSignalingHandlers = (io, socket) => {
     socket.on("join-room", ({ roomId }) => {
+        // Only allow joining if the room exists
         if (!activeRooms.has(roomId)) {
-            activeRooms.set(roomId, new Set());
+            console.log(`User ${socket.id} tried to join non-existent room ${roomId}`);
+            socket.emit("room-error", { message: "Room does not exist." });
+            return; // exit, do not join
         }
-        activeRooms.get(roomId).add(socket.id);
 
+        // Add user to the room 
+        activeRooms.get(roomId).add(socket.id);
         socket.join(roomId);
         console.log(`User ${socket.id} joined room ${roomId}`);
+
+        // Notify other users
         socket.to(roomId).emit("user-joined", { id: socket.id });
     });
 
