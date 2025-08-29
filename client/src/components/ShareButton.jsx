@@ -6,12 +6,13 @@ export default function ShareButton() {
     const handleShare = async () => {
         const shareText = `Welcome to the Video Call
 
-Join Link: https://video-call-shounak.onrender.com/
+Home: https://video-call-shounak.onrender.com/
 
-Room ID: *${roomId}*
+Join Now: https://video-call-shounak.onrender.com/room/${roomId}
+Room ID: ${roomId}
 
-Thank You from Shounak
-Follow: https://www.linkedin.com/in/shounakmahata`;
+Thank You!  
+Follow me: https://www.linkedin.com/in/shounakmahata`;
 
         if (navigator.share) {
             try {
