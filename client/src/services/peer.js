@@ -23,7 +23,14 @@ class PeerService {
 
     // Add this method to handle the local stream
     setLocalStream(stream) {
-        if (!stream) return;
+        if (!stream) {
+            console.error("No stream available");
+            return;
+        }
+        if (!this.peer) {
+            console.error("PeerConnection not initialized yet");
+            return;
+        }
         stream.getTracks().forEach((track) => {
             this.peer.addTrack(track, stream);
         });

@@ -34,8 +34,9 @@ export default function Room() {
                         sampleSize: 24,  
                     },
                 });
-                setLocalStream(stream);
+                peer.createNewPeerConnection();
                 peer.setLocalStream(stream);
+                setLocalStream(stream);
             } catch (error) {
                 console.error("Error accessing media devices:", error);
             }
