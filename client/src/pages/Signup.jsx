@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import eyeOpen from "@/assets/icons/eye-open.svg";
 import eyeClose from "@/assets/icons/eye-close.svg";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.BASE_URL;
 
 export default function SignupPage() {
     const [fullname, setFullname] = useState("");

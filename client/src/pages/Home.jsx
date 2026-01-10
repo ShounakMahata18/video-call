@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.BASE_URL;
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");

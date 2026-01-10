@@ -138,7 +138,7 @@ export const login = async (req, res) => {
             httpOnly: true, //prevent XSS attack
             sameSite: "lax", //prevent CSRF attack
             secure: process.env.NODE_ENV === "production",
-            // path: "/auth/refresh",
+            path: "/api/auth/refresh",
         });
 
         res.status(200).json({

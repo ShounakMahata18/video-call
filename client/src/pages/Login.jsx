@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import eyeOpen from "@/assets/icons/eye-open.svg";
 import eyeClose from "@/assets/icons/eye-close.svg";
-import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+import { useDispatch, useSelector } from "react-redux";
+import { setCredentials, selectCurrentToken } from "../features/auth/authSlice";
+import { useLoginMutation } from "../features/auth/authApiSlice";
+
+const apiUrl = import.meta.env.BASE_URL;
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -13,31 +16,30 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false); // eye toggle state
     const [error, setError] = useState("");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [login, { isLoading }] = useLoginMutation();
 
     const handleLogin = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
         setError("");
 
         try {
-            const res = await axios.post(
-                `${apiUrl}/api/auth/login`,
-                { email, password },
-                { withCredentials: true }
-            )
-
-            const accessToken = res.data.accessToken;
+            const res = await login({ email, password }).unwrap();
+            dispatch(setCredentials({ ...res, email }));
+            setEmail('');
+            setPassword('');
 
             navigate("/");
         } catch (err) {
-            if (err.response) {
-                // Backend responded (401, 400, etc.)
-                setError(err.response.data?.message || "Login failed");
-            } else if (err.request) {
-                // Request sent, no response
-                setError("Server not responding");
+            if (!err?.response) {
+                setError("No server response");
+            } else if (err.response?.status === 400) {
+                setError("Missing email or password");
+            } else if (err.response?.status === 401) {
+                setError("Unauthorized");
             } else {
-                // Unknown error
-                setError("Something went wrong");
+                setError("Login Failed");
             }
         }
     };
