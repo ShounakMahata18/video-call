@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import Navbar from "@/components/Navbar";
+import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -16,24 +17,26 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const res = await fetch(`${apiUrl}/api/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
+            const res = await axios.post(
+                `${apiUrl}/api/auth/login`,
+                { email, password },
+                { withCredentials: true }
+            )
 
-            const data = await res.json();
+            const accessToken = res.data.accessToken;
 
-            if (!res.ok) {
-                setError(data.message || "Login failed");
-                return;
-            }
-
-            localStorage.setItem("jwtToken", data.token);
             navigate("/");
         } catch (err) {
-            setError("Server error");
-            console.error(err);
+            if (err.response) {
+                // Backend responded (401, 400, etc.)
+                setError(err.response.data?.message || "Login failed");
+            } else if (err.request) {
+                // Request sent, no response
+                setError("Server not responding");
+            } else {
+                // Unknown error
+                setError("Something went wrong");
+            }
         }
     };
 

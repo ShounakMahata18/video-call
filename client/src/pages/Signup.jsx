@@ -21,6 +21,11 @@ export default function SignupPage() {
         setError("");
 
         try {
+            if(password !== confirmPassword){
+                setError("Confirm Password mismatch");
+                return;
+            }
+
             const res = await fetch(`${apiUrl}/api/auth/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
