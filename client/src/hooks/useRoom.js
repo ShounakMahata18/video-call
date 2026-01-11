@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import peer from "../services/peer";
 
-const apiUrl = import.meta.env.BASE_URL;
+const baseBackendURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 /**
  * useRoom Hook
@@ -70,7 +70,7 @@ export default function useRoom(roomId, onRoomError) {
                 };
 
                 /** STEP 3: Connect to signaling server */
-                socketRef.current = io(apiUrl, { transports: ["websocket"] });
+                socketRef.current = io(baseBackendURL, { transports: ["websocket"] });
 
                 socketRef.current.on("connect", () => {
                     socketRef.current.emit("join-room", { roomId });

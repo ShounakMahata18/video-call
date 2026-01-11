@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import eyeOpen from "@/assets/icons/eye-open.svg";
 import eyeClose from "@/assets/icons/eye-close.svg";
 
-import { useDispatch, useSelector } from "react-redux";
-import { setCredentials, selectCurrentToken } from "../features/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../features/auth/authSlice";
 import { useLoginMutation } from "../features/auth/authApiSlice";
-
-const apiUrl = import.meta.env.BASE_URL;
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");

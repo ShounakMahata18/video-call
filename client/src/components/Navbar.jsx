@@ -1,12 +1,24 @@
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCurrentToken, logOut } from "../features/auth/authSlice"
+
+import { useLogoutMutation } from "../features/auth/authApiSlice";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const token = localStorage.getItem("jwtToken");
+    const dispatch = useDispatch();
+    const token = useSelector(selectCurrentToken);
+    const [logoutApi] = useLogoutMutation();
 
-    const handleLogout = () => {
-        localStorage.removeItem("jwtToken");
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            await logoutApi().unwrap();
+        } catch (err) {
+            console.error("Logout API failed", err);
+        } finally {
+            dispatch(logOut());
+            navigate("/");
+        }
     };
 
     return (

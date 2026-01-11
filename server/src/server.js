@@ -1,12 +1,13 @@
 import express from "express";
-import "dotenv/config"
-import { createServer } from "http"
+import "dotenv/config";
+import { createServer } from "http";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js"
 import callRoutes from "./routes/call.routes.js"
 import { connectDB } from "./lib/connction.js"
 import { initSocket } from "./socket.js";
+import { protectRoute } from "./middleware/auth.middleware.js"
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,7 +25,7 @@ export const activeRooms = new Map();
 
 // routes
 app.use("/api/auth", authRoutes);
-app.use("/api/call", callRoutes);
+app.use("/api/call", protectRoute, callRoutes);
 
 // create a http server and attach socket.io
 const httpServer = createServer(app);

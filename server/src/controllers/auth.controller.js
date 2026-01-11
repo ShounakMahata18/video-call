@@ -112,10 +112,9 @@ export const login = async (req, res) => {
         }
 
         // compare the input password with the correct password
-        const isPasseordCorrect = await bcrypt.compare(password, user.password);
-
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
         
-        if (!isPasseordCorrect) {
+        if (!isPasswordCorrect) {
             return res
             .status(401)
             .json({ message: "Invalid email and password" });
@@ -124,7 +123,7 @@ export const login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user._id },
             process.env.JWT_ACCESS_SECRET,
-            { expiresIn: "15m" }
+            { expiresIn: "1m" }
         );
 
         const refreshToken = jwt.sign(
@@ -138,7 +137,7 @@ export const login = async (req, res) => {
             httpOnly: true, //prevent XSS attack
             sameSite: "lax", //prevent CSRF attack
             secure: process.env.NODE_ENV === "production",
-            path: "/api/auth/refresh",
+            path: "/api/auth/refresh-access-token",
         });
 
         res.status(200).json({
@@ -152,9 +151,42 @@ export const login = async (req, res) => {
     }
 };
 
+export const refreshAccessToken = (req, res) => {
+    const refreshToken = req.cookies.refresh_token;
+
+    // not logged in
+    if(!refreshToken){
+        return res.sendStatus(401); 
+    }
+
+    jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET,
+        (err, decode) => {
+            if(err){
+                // token expired or tampered
+                return res.sendStatus(403);
+            }
+
+            const accessToken = jwt.sign(
+                { userId: decode.userId },
+                process.env.JWT_ACCESS_SECRET,
+                { expiresIn: "1m" }
+            );
+
+            res.status(200).json({ accessToken });
+        }
+    )
+}
+
 export const logout = async (req, res) => {
     try {
-        res.clearCookie("refresh_token");
+        res.clearCookie("refresh_token", {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            path: "/api/auth/refresh-access-token", // MUST MATCH
+        }); 
         res.status(200).json({ success: true, message: "Logout Successful" });
     } catch (error) {
         console.log("Error in logout controller:", error.message);
